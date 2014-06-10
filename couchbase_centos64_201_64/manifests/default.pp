@@ -38,15 +38,12 @@ package { "couchbase-server":
     require => Package["libssl0.9.8"]
 }
 
-# Ensure firewall rules are flushed (brute force, some CentOS images have firewall
-# on by default).
-exec { "disable-firewall":
-    command => "/sbin/iptables --flush",
-    before => Service["couchbase-server"]
+service { "iptables":
+        ensure => "stopped"
 }
 
 # Ensure the service is running
 service { "couchbase-server":
 	ensure => "running",
-	require => Package["couchbase-server"]
+	require => [Package["couchbase-server"], Service["iptables"]]
 }
